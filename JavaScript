@@ -1,0 +1,288 @@
+(function () {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const CONTACT_EMAIL = 'hello@digitalforgepro.com'; // change to your real inbox
+
+  /* ---------- data ---------- */
+  const svg = (p) => '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>';
+  const icons = {
+    build: svg('<path d="M11 10 5 16l6 6M21 10l6 6-6 6M18 7l-4 18"/>'),
+    run: svg('<path d="M3 17h6l3-9 5 17 3-8h9"/>'),
+    mod: svg('<path d="M26 12a10 10 0 0 0-18-3M6 5v5h5M6 20a10 10 0 0 0 18 3M26 27v-5h-5"/>'),
+    cloud: svg('<path d="M9 25a6 6 0 0 1-1-12 8 8 0 0 1 15-1 6.5 6.5 0 0 1 1 13z"/>'),
+    ui: svg('<rect x="3" y="5" width="26" height="22" rx="3"/><path d="M3 11h26M9 8h.01M13 8h.01"/>'),
+    shield: svg('<path d="M16 3 6 7v8c0 7 4 11 10 14 6-3 10-7 10-14V7z"/><path d="m12 16 3 3 5-6"/>')
+  };
+
+  const services = [
+    { k: 'build', t: 'Custom Software Development', s: 'Web platforms, mobile apps and APIs designed around how your business really works.',
+      d: 'From first sketch to production release, our engineers build software that is fast, secure and easy to extend. You get working demos every two weeks, so nothing is a surprise.',
+      l: ['Web and mobile applications', 'APIs and system integrations', 'SaaS and internal platforms', 'Automated testing and code review', 'Third-party and payment integrations', 'Full documentation and handover'],
+      time: '8 to 24 weeks', team: '3 to 8 people' },
+    { k: 'run', t: 'Software Management and Support', s: 'We host, monitor, patch and improve your software so you can focus on your business.',
+      d: 'Treat us as your outsourced engineering and operations team. We watch your systems around the clock, fix problems before users notice them, and ship improvements every month.',
+      l: ['24/7 uptime monitoring and on-call', 'Security patching and backups', 'Bug fixes and enhancements', 'Performance tuning', 'Monthly health and cost report', 'Dedicated account manager'],
+      time: 'Starts in 2 weeks', team: 'Dedicated engineers' },
+    { k: 'mod', t: 'Modernization and Migration', s: 'Replace aging systems with modern software without stopping your operations.',
+      d: 'We audit your legacy software, then migrate or rebuild it in safe stages. Your team keeps working on the old system until the new one has proven itself.',
+      l: ['Code, security and architecture audits', 'Staged legacy rewrites', 'Database and data migration', 'Monolith to services migration', 'Framework and language upgrades', 'Zero-downtime cutovers'],
+      time: '10 to 30 weeks', team: '4 to 10 people' },
+    { k: 'cloud', t: 'Cloud and DevOps', s: 'Reliable infrastructure, automated releases and a smaller cloud bill.',
+      d: 'We design cloud environments that scale with demand and recover quickly from failure. Automated pipelines let your team release safely, as often as you like.',
+      l: ['AWS, Azure and Google Cloud', 'CI/CD pipelines', 'Infrastructure as code', 'Cloud cost optimization', 'Monitoring and alerting', 'Disaster recovery planning'],
+      time: '4 to 12 weeks', team: '2 to 4 people' },
+    { k: 'ui', t: 'UI/UX Product Design', s: 'Interfaces your users understand on the first try.',
+      d: 'Research-led design that turns ideas into tested prototypes before a line of code is written, cutting rework and building products people enjoy using.',
+      l: ['User research and interviews', 'Wireframes and clickable prototypes', 'Design systems', 'Usability testing', 'Accessibility reviews', 'Developer-ready design files'],
+      time: '3 to 8 weeks', team: '2 to 3 people' },
+    { k: 'shield', t: 'Security and Compliance', s: 'Protect your data and meet the standards your customers ask for.',
+      d: 'We find the weak points attackers look for first and fix them. We also prepare you for audits so compliance becomes a routine, not a scramble.',
+      l: ['Penetration testing', 'SOC 2, HIPAA and GDPR readiness', 'Secrets and access management', 'Vulnerability scanning', 'Incident response planning', 'Staff security training'],
+      time: '3 to 10 weeks', team: '2 to 4 people' }
+  ];
+
+  const projects = [
+    { n: 'Northline Dispatch', c: 'Logistics', tags: ['Web app', 'Mobile'], d: 'A real-time dispatch system for 600 drivers, replacing a spreadsheet and phone workflow.', r: '22% faster deliveries', hue: 222, v: 0,
+      client: 'Northline Logistics', dur: '5 months', stack: ['React', 'Node.js', 'PostgreSQL', 'AWS'],
+      ch: 'Dispatchers tracked 600 drivers across spreadsheets and phone calls. Errors were common and customers had no visibility.',
+      sol: 'We built a live dispatch board, a driver mobile app and a customer tracking page, and migrated the old data without pausing deliveries.',
+      res: ['Delivery times down 22%', 'Phone calls to dispatch cut by 60%', 'Zero downtime during cutover'] },
+    { n: 'Kestrel Pay', c: 'Finance', tags: ['Web app', 'API'], d: 'A billing and invoicing portal for small businesses, with bank-level security controls.', r: '$48M processed in year one', hue: 160, v: 1,
+      client: 'Kestrel Financial', dur: '6 months', stack: ['Next.js', 'Python', 'PostgreSQL', 'Stripe'],
+      ch: 'Small business customers were invoicing by hand and waiting weeks to get paid.',
+      sol: 'We delivered a secure invoicing and payments portal with automatic reminders, bank connections and detailed audit trails.',
+      res: ['$48M processed in year one', 'Average payment time down from 31 to 12 days', 'Passed SOC 2 audit first time'] },
+    { n: 'Harbor Health Portal', c: 'Health', tags: ['Web app', 'Compliance'], d: 'A HIPAA-ready patient portal for appointments, records and secure messaging.', r: '35% fewer front-desk calls', hue: 12, v: 2,
+      client: 'Harbor Health Group', dur: '7 months', stack: ['Vue', 'Node.js', 'MongoDB', 'Azure'],
+      ch: 'Front-desk staff were overwhelmed by calls for appointments and test results.',
+      sol: 'We built a patient portal with online booking, secure messaging and results access, designed to meet HIPAA requirements from day one.',
+      res: ['35% fewer front-desk calls', '70% of appointments booked online', 'Clean compliance audit'] },
+    { n: 'Ridgeline Retail Cloud', c: 'Retail', tags: ['Cloud', 'Migration'], d: 'Moved 14 stores from on-site servers to the cloud with no trading downtime.', r: 'Hosting costs down 41%', hue: 280, v: 3,
+      client: 'Ridgeline Retail', dur: '4 months', stack: ['AWS', 'Terraform', 'Docker', 'Datadog'],
+      ch: 'Each store ran its own aging server. Outages closed tills and fixing them meant flying out an engineer.',
+      sol: 'We moved inventory and point-of-sale back-ends to the cloud store by store, with offline fallbacks and central monitoring.',
+      res: ['Hosting costs down 41%', 'Store outages down 88%', 'All 14 stores moved with no trading downtime'] },
+    { n: 'FieldNote', c: 'Logistics', tags: ['Mobile'], d: 'An offline-first mobile app that lets inspectors file reports from places with no signal.', r: 'Reports filed 3x faster', hue: 38, v: 4,
+      client: 'FieldNote Inspections', dur: '4 months', stack: ['React Native', 'SQLite', 'Node.js', 'GCP'],
+      ch: 'Inspectors worked in remote sites with no signal and re-typed paper notes at the end of the day.',
+      sol: 'We built an offline-first app that captures photos, signatures and forms on the spot, then syncs safely when a connection returns.',
+      res: ['Reports filed 3x faster', 'Paperwork errors down 74%', '4.8 star app store rating'] },
+    { n: 'Plumb Ledger', c: 'Finance', tags: ['Modernization'], d: 'Rebuilt a 15-year-old accounting system in stages, one module at a time.', r: 'Month-end close: 9 days to 3', hue: 190, v: 5,
+      client: 'Plumb & Associates', dur: '11 months', stack: ['.NET', 'Angular', 'SQL Server', 'Azure'],
+      ch: 'A 15-year-old accounting system was slow, hard to change and understood by only one retiring developer.',
+      sol: 'Instead of one risky rewrite, we replaced the system module by module while both versions ran side by side.',
+      res: ['Month-end close cut from 9 days to 3', 'No data loss across 2.3M records', 'Team onboarded in a week instead of months'] }
+  ];
+
+  const quotes = [
+    { q: 'They rebuilt our dispatch system without a single day of downtime, and they still answer at 2 a.m. when something looks odd.', n: 'Maria Okafor', r: 'COO, Northline Logistics', s: 'Maria' },
+    { q: 'We went from dreading releases to shipping every week. DigitalForgePro set up the pipeline and taught our team how to run it.', n: 'Daniel Reyes', r: 'CTO, Kestrel Financial', s: 'Daniel' },
+    { q: 'Our compliance audit was the calmest one we have had. Every control was already documented and tested.', n: 'Priya Raman', r: 'Director of IT, Harbor Health', s: 'Priya' },
+    { q: 'The monthly plan pays for itself. Problems are fixed before our store managers even notice them.', n: 'Tom Lindqvist', r: 'Head of Operations, Ridgeline Retail', s: 'Tom' },
+    { q: 'Honest estimates, working demos every two weeks, and no surprises on the invoice. That is rare in this industry.', n: 'Ama Boateng', r: 'Founder, FieldNote', s: 'Ama' },
+    { q: 'They told us a full rewrite was the wrong call and proposed a staged plan instead. It saved us a year and a lot of money.', n: 'Greg Hollis', r: 'CFO, Plumb & Associates', s: 'Greg' }
+  ];
+
+  const team = [
+    { n: 'Lena Voss', r: 'Co-founder and CEO', b: '18 years leading engineering teams in fintech and logistics.' },
+    { n: 'Samuel Adeyemi', r: 'Co-founder and CTO', b: 'Former platform architect who has scaled systems to millions of users.' },
+    { n: 'Joana Ferreira', r: 'Head of Design', b: 'Builds design systems that developers actually enjoy using.' },
+    { n: 'Wei Chen', r: 'Head of Operations', b: 'Runs our 24/7 monitoring and on-call practice.' },
+    { n: 'Amara Njoroge', r: 'Head of Security', b: 'Certified penetration tester and compliance specialist.' },
+    { n: 'Marcus Bell', r: 'Client Success Lead', b: 'Makes sure every client knows what is happening and why.' }
+  ];
+
+  const initials = (s) => s.split(' ').map((w) => w[0]).slice(0, 2).join('');
+
+  /* ---------- project artwork ---------- */
+  function art(p) {
+    const h = p.hue, a = `hsl(${h} 72% 56%)`, b = `hsl(${h} 58% 20%)`, c = `hsl(${h} 80% 84%)`;
+    const shapes = [
+      `<g fill="${c}" opacity=".9"><rect x="40" y="60" width="90" height="14" rx="3"/><rect x="40" y="86" width="150" height="14" rx="3" opacity=".6"/><rect x="40" y="112" width="120" height="14" rx="3" opacity=".6"/></g><circle cx="320" cy="90" r="46" fill="${a}"/><path d="M296 92l16 16 28-34" stroke="${b}" stroke-width="8" fill="none" stroke-linecap="round"/>`,
+      `<g fill="${a}"><rect x="50" y="110" width="30" height="50" rx="3"/><rect x="95" y="80" width="30" height="80" rx="3"/><rect x="140" y="95" width="30" height="65" rx="3"/><rect x="185" y="55" width="30" height="105" rx="3"/></g><path d="M240 120c30-10 40-50 90-45" stroke="${c}" stroke-width="6" fill="none" stroke-linecap="round"/>`,
+      `<rect x="50" y="40" width="130" height="110" rx="10" fill="${c}" opacity=".85"/><rect x="200" y="40" width="150" height="50" rx="10" fill="${a}"/><rect x="200" y="100" width="150" height="50" rx="10" fill="${c}" opacity=".5"/>`,
+      `<g fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round"><path d="M80 130a30 30 0 0 1 4-60 40 40 0 0 1 76-6 32 32 0 0 1 8 66z"/></g><g fill="${a}"><circle cx="250" cy="70" r="12"/><circle cx="310" cy="110" r="12"/><circle cx="270" cy="140" r="12"/></g><path d="M250 70 310 110 270 140z" stroke="${c}" stroke-width="3" fill="none"/>`,
+      `<rect x="150" y="25" width="100" height="150" rx="16" fill="${c}"/><rect x="162" y="48" width="76" height="9" rx="4" fill="${b}"/><rect x="162" y="68" width="56" height="9" rx="4" fill="${a}"/><rect x="162" y="88" width="66" height="9" rx="4" fill="${b}" opacity=".5"/><circle cx="200" cy="148" r="9" fill="${a}"/>`,
+      `<g fill="${c}" opacity=".85"><rect x="40" y="50" width="70" height="100" rx="6"/></g><g fill="${a}"><rect x="130" y="50" width="70" height="100" rx="6"/></g><g fill="none" stroke="${c}" stroke-width="4" stroke-dasharray="8 8"><rect x="220" y="50" width="70" height="100" rx="6"/></g><path d="M302 100h40m-12-12 12 12-12 12" stroke="${c}" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`
+    ];
+    return `<svg class="art" viewBox="0 0 400 190" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Abstract illustration for ${p.n}"><rect width="400" height="190" fill="${b}"/>${shapes[p.v]}</svg>`;
+  }
+
+  /* ---------- shared: nav, year, reveal ---------- */
+  const nav = $('nav'), menuBtn = $('menuBtn');
+  if (menuBtn && nav) {
+    menuBtn.addEventListener('click', () => {
+      const open = nav.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', String(open));
+    });
+  }
+  const current = document.body.dataset.page;
+  document.querySelectorAll('nav.main a[data-page]').forEach((a) => {
+    if (a.dataset.page === current) a.setAttribute('aria-current', 'page');
+  });
+  if ($('yr')) $('yr').textContent = new Date().getFullYear();
+
+  /* ---------- home ---------- */
+  if ($('homeSvc')) {
+    $('homeSvc').innerHTML = services.map((s) =>
+      `<div class="card reveal"><div class="ico">${icons[s.k]}</div><h3>${s.t}</h3><p>${s.s}</p><a class="more" href="services.html">Learn more</a></div>`).join('');
+  }
+  if ($('homeProjects')) {
+    $('homeProjects').innerHTML = projects.slice(0, 3).map((p) =>
+      `<article class="proj reveal">${art(p)}<div class="body"><div class="tags"><span class="tag">${p.c}</span>${p.tags.map((t) => `<span class="tag outline">${t}</span>`).join('')}</div><h3>${p.n}</h3><p>${p.d}</p><div class="result"><span>${p.r}</span></div></div></article>`).join('');
+  }
+  if ($('homeQuotes')) {
+    $('homeQuotes').innerHTML = quotes.slice(0, 3).map((q) =>
+      `<figure class="t-card reveal"><div class="stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><blockquote><p>${q.q}</p></blockquote><figcaption class="who"><div class="avatar">${initials(q.n)}</div><div><b>${q.n}</b><small>${q.r}</small></div></figcaption></figure>`).join('');
+  }
+
+  /* hero terminal */
+  const term = $('termBody');
+  if (term) {
+    const script = [
+      { c: 'cmd', t: 'forge init client-portal' },
+      { c: 'okk', t: '✓ Scope, budget and timeline agreed' },
+      { c: 'cmd', t: 'forge build --env production' },
+      { c: 'okk', t: '✓ 412 tests passed' },
+      { c: 'okk', t: '✓ Security scan clean' },
+      { c: 'cmd', t: 'forge deploy' },
+      { c: 'okk', t: '✓ Live in 3 regions' },
+      { c: 'cmd', t: 'forge watch' },
+      { c: 'live', t: '● All systems healthy · 99.97% uptime' }
+    ];
+    const render = (n, typing) => {
+      term.innerHTML = script.slice(0, n).map((l) => `<span class="ln ${l.c}">${l.t}</span>`).join('') +
+        (typing ? '<span class="ln cmd"><span class="caret"></span></span>' : '');
+    };
+    if (reduce) { render(script.length, false); }
+    else {
+      let n = 0;
+      const step = () => {
+        n++; render(n, n < script.length);
+        if (n < script.length) setTimeout(step, script[n - 1].c === 'cmd' ? 750 : 520);
+        else setTimeout(() => { n = 0; render(0, true); setTimeout(step, 700); }, 5200);
+      };
+      render(0, true); setTimeout(step, 600);
+    }
+  }
+
+  /* ---------- services ---------- */
+  if ($('svcDetail')) {
+    $('svcDetail').innerHTML = services.map((s, i) =>
+      `<div class="svc-row reveal" id="svc-${i}"><div><div class="ico">${icons[s.k]}</div><h2 style="font-size:1.8rem">${s.t}</h2><p>${s.d}</p><div class="meta"><div><b>${s.time}</b>Typical timeline</div><div><b>${s.team}</b>Team size</div></div></div><ul>${s.l.map((x) => `<li>${x}</li>`).join('')}</ul></div>`).join('');
+  }
+
+  /* ---------- projects ---------- */
+  if ($('projGrid')) {
+    const cats = ['All', ...new Set(projects.map((p) => p.c))];
+    const filters = $('filters'), grid = $('projGrid'), dlg = $('projModal');
+    filters.innerHTML = cats.map((c, i) => `<button class="chip" aria-pressed="${i === 0}" data-c="${c}">${c}</button>`).join('');
+    const draw = (cat) => {
+      grid.innerHTML = projects.map((p, i) => ({ p, i })).filter(({ p }) => cat === 'All' || p.c === cat).map(({ p, i }) =>
+        `<article class="proj">${art(p)}<div class="body"><div class="tags"><span class="tag">${p.c}</span>${p.tags.map((t) => `<span class="tag outline">${t}</span>`).join('')}</div><h3>${p.n}</h3><p>${p.d}</p><div class="result"><span>${p.r}</span><button class="btn btn-ghost btn-sm" data-open="${i}">View case study</button></div></div></article>`).join('');
+    };
+    draw('All');
+    filters.addEventListener('click', (e) => {
+      const b = e.target.closest('.chip'); if (!b) return;
+      filters.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      draw(b.dataset.c);
+    });
+    grid.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-open]'); if (!b) return;
+      const p = projects[+b.dataset.open];
+      $('dlgContent').innerHTML = art(p) +
+        `<div class="dlg-body"><div class="tags"><span class="tag">${p.c}</span>${p.tags.map((t) => `<span class="tag outline">${t}</span>`).join('')}</div><h2 id="dlgTitle">${p.n}</h2>
+        <div class="dlg-meta"><div><b>${p.client}</b>Client</div><div><b>${p.dur}</b>Duration</div><div><b>${p.stack.join(', ')}</b>Technology</div></div>
+        <h4>The challenge</h4><p>${p.ch}</p><h4>What we built</h4><p>${p.sol}</p><h4>Results</h4><ul>${p.res.map((x) => `<li>${x}</li>`).join('')}</ul>
+        <p style="margin-top:1.6rem"><a class="btn btn-primary" href="contact.html">Start a similar project</a></p></div>`;
+      dlg.showModal();
+    });
+    $('dlgClose').addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  }
+
+  /* ---------- testimonials ---------- */
+  if ($('qNav')) {
+    const qNav = $('qNav');
+    qNav.innerHTML = quotes.map((q, i) => `<button role="tab" aria-selected="${i === 0}" data-i="${i}">${q.s}</button>`).join('');
+    const show = (i) => {
+      const q = quotes[i];
+      $('qText').textContent = q.q;
+      $('qName').textContent = q.n; $('qRole').textContent = q.r; $('qAv').textContent = initials(q.n);
+      qNav.querySelectorAll('button').forEach((b, j) => b.setAttribute('aria-selected', String(j === i)));
+    };
+    show(0);
+    qNav.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) show(+b.dataset.i); });
+    $('tGrid').innerHTML = quotes.slice(1).map((q) =>
+      `<figure class="t-card reveal"><div class="stars" role="img" aria-label="5 out of 5 stars">★★★★★</div><blockquote><p>${q.q}</p></blockquote><figcaption class="who"><div class="avatar">${initials(q.n)}</div><div><b>${q.n}</b><small>${q.r}</small></div></figcaption></figure>`).join('');
+  }
+
+  /* ---------- about ---------- */
+  if ($('team')) {
+    $('team').innerHTML = team.map((p) =>
+      `<div class="person reveal"><div class="avatar">${initials(p.n)}</div><div><h3>${p.n}</h3><small>${p.r}</small></div><p>${p.b}</p></div>`).join('');
+  }
+
+  /* ---------- contact ---------- */
+  const form = $('form');
+  if (form) {
+    const success = $('success');
+    const rules = {
+      name: (v) => (v.trim().length < 2 ? 'Enter your full name.' : ''),
+      email: (v) => (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? '' : 'Enter a valid email, like name@company.com.'),
+      service: (v) => (v ? '' : 'Choose what you need help with.'),
+      message: (v) => (v.trim().length < 20 ? 'Add a few more details (at least 20 characters).' : '')
+    };
+    const check = (id) => {
+      const el = form.elements[id], msg = rules[id](el.value);
+      $('e-' + id).textContent = msg;
+      el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      return !msg;
+    };
+    Object.keys(rules).forEach((id) => form.elements[id].addEventListener('blur', () => check(id)));
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (Object.keys(rules).map(check).includes(false)) { form.querySelector('[aria-invalid="true"]').focus(); return; }
+      const f = form.elements;
+      const body = `Name: ${f.name.value}\nEmail: ${f.email.value}\nCompany: ${f.company.value || '-'}\nService: ${f.service.value}\nBudget: ${f.budget.value || '-'}\n\n${f.message.value}`;
+      const href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('New project enquiry from ' + f.name.value.trim())}&body=${encodeURIComponent(body)}`;
+      $('successText').textContent = `Thanks, ${f.name.value.trim().split(' ')[0]}. Your email app should now open with your message ready to send. If it did not, email us directly at ${CONTACT_EMAIL} and we will reply within one business day.`;
+      form.style.display = 'none'; success.classList.add('show'); success.focus();
+      window.location.href = href;
+      // To send messages without an email app, post the form data to your backend or a form service here instead.
+    });
+    $('again').addEventListener('click', () => {
+      form.reset(); form.style.display = ''; success.classList.remove('show');
+      form.querySelectorAll('[aria-invalid]').forEach((x) => x.removeAttribute('aria-invalid'));
+      form.elements.name.focus();
+    });
+  }
+
+  /* ---------- scroll effects: reveal, counters, meters ---------- */
+  const countEls = document.querySelectorAll('.count');
+  const fmt = (n, dec) => n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  const runCount = (el) => {
+    const to = parseFloat(el.dataset.to), dec = +(el.dataset.dec || 0), suf = el.dataset.suf || '';
+    if (reduce) { el.textContent = fmt(to, dec) + suf; return; }
+    const t0 = performance.now(), dur = 1400;
+    const f = (t) => {
+      const k = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = fmt(to * e, dec) + suf;
+      if (k < 1) requestAnimationFrame(f);
+    };
+    requestAnimationFrame(f);
+  };
+  const watch = (sel, fn, opts) => {
+    const els = document.querySelectorAll(sel);
+    if (!('IntersectionObserver' in window)) { els.forEach(fn); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) { fn(en.target); io.unobserve(en.target); } });
+    }, opts || { threshold: .25 });
+    els.forEach((el) => io.observe(el));
+  };
+  watch('.count', runCount);
+  watch('.m-bar i', (el) => { el.style.width = el.dataset.w + '%'; });
+  // reveal: observe after dynamic content is in the DOM
+  watch('.reveal', (el) => el.classList.add('in'), { threshold: .12 });
+})();
